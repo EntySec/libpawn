@@ -39,17 +39,17 @@ int memfd_elf_exec(const unsigned char *elf, char **argv, char **env)
     int fd;
     size_t end = 0, done = 0;
 
-    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *) elf;
-	ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
+    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *)elf;
+    ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
 
     log_debug("* Verifying ELF ...");
 
     if (!(ehdr->e_ident[EI_MAG0] == ELFMAG0 &&
-			ehdr->e_ident[EI_MAG1] == ELFMAG1 &&
-			ehdr->e_ident[EI_MAG2] == ELFMAG2 &&
-			ehdr->e_ident[EI_MAG3] == ELFMAG3 &&
-			ehdr->e_ident[EI_CLASS] == ELFCLASS_NATIVE &&
-			ehdr->e_ident[EI_DATA] == ELFDATA_NATIVE))
+	  ehdr->e_ident[EI_MAG1] == ELFMAG1 &&
+	  ehdr->e_ident[EI_MAG2] == ELFMAG2 &&
+	  ehdr->e_ident[EI_MAG3] == ELFMAG3 &&
+	  ehdr->e_ident[EI_CLASS] == ELFCLASS_NATIVE &&
+	  ehdr->e_ident[EI_DATA] == ELFDATA_NATIVE))
         return -1;
 
     log_debug("* Iterating ELF to get its size ...");
