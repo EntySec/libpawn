@@ -31,10 +31,10 @@
 #include <unistd.h>
 #include <link.h>
 
-#include <exec.h>
+#include <pawn.h>
 #include <log.h>
 
-int memfd_elf_exec(const unsigned char *elf, char **argv, char **env)
+int pawn_memfd_exec(const unsigned char *elf, char **argv, char **env)
 {
     int fd;
     size_t end = 0, done = 0;
