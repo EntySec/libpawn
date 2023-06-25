@@ -9,7 +9,7 @@ if (USE_DEBUG)
     add_definitions(-DDEBUG=1)
 endif()
 
-add_library(pawn STATIC src/exec.c src/log.c)
+add_library(pawn STATIC src/pawn.c src/log.c)
 set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_target_properties(pawn PROPERTIES OUTPUT_NAME "pawn")
 
