@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef _EXEC_H_
-#define _EXEC_H_
+#ifndef _PAWN_H_
+#define _PAWN_H_
 
 #include <arpa/inet.h>
 
@@ -35,6 +35,6 @@
 
 #define ELFDATA_NATIVE ((htonl(1) == 1) ? ELFDATA2MSB : ELFDATA2LSB)
 
-int memfd_elf_exec(const unsigned char *, char **, char **);
+int pawn_memfd_exec(const unsigned char *, char **, char **);
 
-#endif /* _EXEC_H_ */
+#endif /* _PAWN_H_ */
