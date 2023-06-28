@@ -22,13 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#ifndef _EXEC_H_
+#define _EXEC_H_
 
-#include <stddef.h>
+#include <elf.h>
+#include <link.h>
+#include <arpa/inet.h>
 
-int pawn_exec(unsigned char *, char **, char **);
-int pawn_exec_fd(unsigned char *, char **, char **);
-int pawn_exec_stack(unsigned char *, char **, char **, size_t *);
+#define PAGE_FLOOR(addr) ((addr) & (-PAGE_SIZE))
+#define PAGE_CEIL(addr) (PAGE_FLOOR((addr) + PAGE_SIZE - 1))
 
-#endif /* _PAWN_H_ */
+#if UINTPTR_MAX > 0xffffffff
+#define ELFCLASS_NATIVE ELFCLASS64
+#else
+#define ELFCLASS_NATIVE ELFCLASS32
+#endif
+
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 0x1000
+#endif
+
+#define ELFDATA_NATIVE ((htonl(1) == 1) ? ELFDATA2MSB : ELFDATA2LSB)
+
+typedef struct elf_map {
+    ElfW(Ehdr) *ehdr;
+    ElfW(Addr) entry;
+    char *interp;
+} elf_map_t;
+
+int exec(unsigned char *, char **, char **);
+int exec_fd(unsigned char *, char **, char **);
+int exec_with_stack(unsigned char *, char **, char **, size_t *);
+
+#endif /* _EXEC_H_ */

@@ -22,66 +22,20 @@
  * SOFTWARE.
  */
 
-#include <elf.h>
-#include <fcntl.h>
-#include <linux/memfd.h>
-#include <stdlib.h>
-#include <syscall.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <link.h>
-
 #include <pawn.h>
-#include <log.h>
+#include <exec.h>
 
-int pawn_memfd_exec(const unsigned char *elf, char **argv, char **env)
+int pawn_exec(unsigned char *elf, char **argv, char **env)
 {
-    int fd;
-    size_t end = 0, done = 0;
+    return exec(elf, argv, env);
+}
 
-    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *)elf;
-    ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
+int pawn_exec_fd(unsigned char *elf, char **argv, char **env)
+{
+    return exec_fd(elf, argv, env);
+}
 
-    log_debug("* Verifying ELF ...");
-
-    if (!(ehdr->e_ident[EI_MAG0] == ELFMAG0 &&
-	  ehdr->e_ident[EI_MAG1] == ELFMAG1 &&
-	  ehdr->e_ident[EI_MAG2] == ELFMAG2 &&
-	  ehdr->e_ident[EI_MAG3] == ELFMAG3 &&
-	  ehdr->e_ident[EI_CLASS] == ELFCLASS_NATIVE &&
-	  ehdr->e_ident[EI_DATA] == ELFDATA_NATIVE))
-        return -1;
-
-    log_debug("* Iterating ELF to get its size ...");
-
-    for (int i = 0; i < ehdr->e_phnum; i++, phdr++)
-    {
-        if (phdr->p_type == PT_LOAD)
-        {
-            if (end < phdr->p_offset + phdr->p_filesz)
-            {
-                end = phdr->p_offset + phdr->p_filesz;
-            }
-        }
-    }
-
-    log_debug("* Creating file descriptor ...");
-
-    fd = syscall(SYS_memfd_create, "", MFD_CLOEXEC);
-    if (ftruncate(fd, end) < 0)
-        return -1;
-
-    log_debug("* Writing to the file descriptor ...");
-
-    while (done < end)
-    {
-        if (write(fd, elf + done, end - done) < 0)
-            return -1;
-        done += 1;
-    }
-
-    log_debug("* Executing file descriptor ...");
-
-    syscall(SYS_execveat, fd, "", argv, env, 0x1000);
-    return 0;
+int pawn_exec_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
+{
+    exec_with_stack(elf, argv, env, stack);
 }

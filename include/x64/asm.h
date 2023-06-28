@@ -22,13 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#ifndef _ASM_H_
+#define _ASM_H_
 
-#include <stddef.h>
+#define ASM_JUMP(addr, stack) \
+    __asm__ volatile ( \
+        "movq %[stack], %%rsp;" \
+        "xor %%rdx, %%rdx;" \
+        "jmp *%[entry];" \
+        : \
+        : [stack] "r" (stack), [entry] "r" (addr) \
+        : "rdx", "memory" \
+    )
 
-int pawn_exec(unsigned char *, char **, char **);
-int pawn_exec_fd(unsigned char *, char **, char **);
-int pawn_exec_stack(unsigned char *, char **, char **, size_t *);
-
-#endif /* _PAWN_H_ */
+#endif /* _ASM_H_ */

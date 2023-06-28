@@ -16,16 +16,4 @@ cmake -B build
 
 ## Usage
 
-In code:
-
-```c
-#include <pawn.h>
-```
-
-During build:
-
-```
--lpawn
-```
-
-* For examples proceed to [examples](https://github.com/EntySec/libpawn/tree/main/examples)
+* For examples - [examples](https://github.com/EntySec/libpawn/tree/main/examples)
