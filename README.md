@@ -23,7 +23,7 @@ C library that is intended for providing methods for executing and injecting cod
 * Lightweight and small library that can be ported to almost every single program.
 * Zero requirements.
 
-## Installation
+## Building libpawn
 
 ```shell
 cmake -B build
@@ -31,6 +31,19 @@ cd build
 make
 ```
 
-## Usage
+## API usage
+
+```c
+#include <pawn.h>
+```
+
+### Basic functions
+
+There are all libpawn basic functions that can be used to execute ELF executable.
+
+* c`pawn_exec(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer.
+* c`pawn_exec_fd(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer using created file descriptor.
+
+### Examples
 
 * For examples - [examples](https://github.com/EntySec/libpawn/tree/main/examples)
