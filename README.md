@@ -41,8 +41,8 @@ make
 
 There are all libpawn basic functions that can be used to execute ELF executable.
 
-* c`pawn_exec(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer.
-* c`pawn_exec_fd(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer using created file descriptor.
+* `pawn_exec(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer.
+* `pawn_exec_fd(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer using created file descriptor.
 
 ### Examples
 
