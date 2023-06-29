@@ -1,7 +1,7 @@
 # libpawn
 
 <p>
-    <a href="https://entysec.netlify.app">
+    <a href="https://entysec.com">
         <img src="https://img.shields.io/badge/developer-EntySec-blue.svg">
     </a>
     <a href="https://github.com/EntySec/libpawn">
