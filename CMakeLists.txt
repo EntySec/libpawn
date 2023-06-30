@@ -28,23 +28,23 @@ project(libpawn VERSION 1.0.0)
 option(USE_DEBUG "Build in debug mode" OFF)
 
 if (USE_DEBUG)
-    add_definitions(-DDEBUG=1)
+    add_compile_definitions(DEBUG=1)
 endif()
 
 include_directories(include)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(EXEC "macho")
-    add_definitions(-DMACHO=1)
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    set(EXEC macho)
+    add_compile_definitions(MACHO=1)
     add_compile_options(-Wno-deprecated)
 
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(EXEC "pe")
-    add_definitions(-DPE=1)
+elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
+    set(EXEC pe)
+    add_compile_definitions(PE=1)
 
 else()
-    set(EXEC "elf")
-    add_definitions(-DELF=1)
+    set(EXEC elf)
+    add_compile_definitions(ELF=1)
 endif()
 
 include_directories(include/${EXEC})
@@ -52,15 +52,16 @@ include_directories(include/${EXEC})
 if (DEFINED ENV{ARCH})
     set(ARCH $ENV{ARCH})
 else()
-    set(ARCH "x64")
+    set(ARCH x64)
 endif()
 
-include_directories("include/${EXEC}/${ARCH}/")
+include_directories(include/${EXEC}/${ARCH}/)
 
 file(GLOB PAWN_SOURCES src/${EXEC}/*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
+
 set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pawn PROPERTIES OUTPUT_NAME "pawn")
+set_target_properties(pawn PROPERTIES OUTPUT_NAME pawn)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
