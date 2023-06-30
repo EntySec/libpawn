@@ -36,7 +36,7 @@ include_directories(include)
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(EXEC "macho")
     add_definitions(-DMACHO=1)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated")
+    add_compile_options("-Wno-deprecated")
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(EXEC "pe")
