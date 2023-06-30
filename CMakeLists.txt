@@ -26,6 +26,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(libpawn VERSION 1.0.0)
 
 option(DEBUG "Build in debug mode" OFF)
+set(ARCH "Build for specific architecture" CACHE STRING x64)
 
 if (DEBUG)
     add_compile_definitions(DEBUG=1)
@@ -34,30 +35,23 @@ endif()
 include_directories(include)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    set(EXEC macho)
+    set(FILE macho)
     add_compile_definitions(MACHO=1)
     add_compile_options(-Wno-deprecated)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    set(EXEC pe)
+    set(FILE pe)
     add_compile_definitions(PE=1)
 
 else()
-    set(EXEC elf)
+    set(FILE elf)
     add_compile_definitions(ELF=1)
 endif()
 
-include_directories(include/${EXEC})
+include_directories(include/${FILE})
+include_directories(include/${FILE}/${ARCH}/)
 
-if (DEFINED ENV{ARCH})
-    set(ARCH $ENV{ARCH})
-else()
-    set(ARCH x64)
-endif()
-
-include_directories(include/${EXEC}/${ARCH}/)
-
-file(GLOB PAWN_SOURCES src/${EXEC}/*.c)
+file(GLOB PAWN_SOURCES src/${FILE}/*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
 
 set_property(TARGET pawn PROPERTY C_STANDART 99)
