@@ -50,7 +50,7 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env
     log_debug("* Creating object from memory\n");
 
     NSObjectFileImage fileImage = NULL;
-	NSCreateObjectFileImageFromMemory(bundle, size, &fileImage);
+    NSCreateObjectFileImageFromMemory(bundle, size, &fileImage);
 
     if (fileImage == NULL)
     {
@@ -58,9 +58,9 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env
         return -1;
     }
 
-	NSModule module = NSLinkModule(fileImage, "module", NSLINKMODULE_OPTION_NONE);
-	NSSymbol symbol = NSLookupSymbolInModule(module, "_main");
-	entry = NSAddressOfSymbol(symbol);
+    NSModule module = NSLinkModule(fileImage, "module", NSLINKMODULE_OPTION_NONE);
+    NSSymbol symbol = NSLookupSymbolInModule(module, "_main");
+    entry = NSAddressOfSymbol(symbol);
 
     log_debug("* Jumping to the entry (%p)\n", (void *)entry);
 
