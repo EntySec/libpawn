@@ -25,14 +25,16 @@
 #ifndef _PAWN_H_
 #define _PAWN_H_
 
-#if ELF /* ELF methods */
+#ifdef ELF /* ELF methods */
 
 int pawn_exec(unsigned char *, char **, char **);
 int pawn_exec_fd(unsigned char *, char **, char **);
 
-#elif MACHO /* Mach-O methods */
+#else
+#ifdef MACHO /* Mach-O methods */
 
 int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
+#endif
 #endif
 
 #endif /* _PAWN_H_ */
