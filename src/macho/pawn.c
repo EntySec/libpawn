@@ -67,7 +67,7 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env
     entry(argc, argv, env); /* down the rabbit hole! */
 
     NSUnLinkModule(module, NSUNLINKMODULE_OPTION_NONE);
-	NSDestroyObjectFileImage(fileImage);
+    NSDestroyObjectFileImage(fileImage);
 
     return 0;
 }
