@@ -13,6 +13,9 @@
     <a href="https://github.com/EntySec/libpawn/stargazers">
         <img src="https://img.shields.io/github/stars/EntySec/libpawn?color=yellow">
     </a>
+    <a href="https://www.codefactor.io/repository/github/EntySec/libpawn">
+        <img src="https://www.codefactor.io/repository/github/EntySec/libpawn/badge" alt="CodeFactor" />
+    </a>
 </p>
 
 C library that is intended for providing methods for executing and injecting code.
