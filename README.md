@@ -40,13 +40,6 @@ make
 #include <pawn.h>
 ```
 
-### Basic functions
-
-There are all libpawn basic functions that can be used to execute ELF executable.
-
-* `pawn_exec(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer.
-* `pawn_exec_fd(unsigned char *elf, char **argv, char **env)` - Execute ELF executable from buffer using created file descriptor.
-
 ### Examples
 
 * For examples - [examples](https://github.com/EntySec/libpawn/tree/main/examples)
