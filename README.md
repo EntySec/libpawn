@@ -20,8 +20,8 @@ C library that is intended for providing methods for executing and injecting cod
 ## Features
 
 * Supports different ways of loading ELF and shared objects.
+* Supports most common executable file formats: `ELF`, `PE` and `Mach-O`.
 * Lightweight and small library that can be ported to almost every single program.
-* Zero requirements.
 
 ## Building libpawn
 
