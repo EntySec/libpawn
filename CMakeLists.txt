@@ -25,9 +25,9 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(libpawn VERSION 1.0.0)
 
-option(USE_DEBUG "Build in debug mode" OFF)
+option(DEBUG "Build in debug mode" OFF)
 
-if (USE_DEBUG)
+if (DEBUG)
     add_compile_definitions(DEBUG=1)
 endif()
 
