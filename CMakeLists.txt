@@ -60,7 +60,9 @@ include_directories(include/${EXEC}/${ARCH}/)
 file(GLOB PAWN_SOURCES src/${EXEC}/*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
 
+set_property(TARGET pawn PROPERTY C_STANDART 99)
 set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 set_target_properties(pawn PROPERTIES OUTPUT_NAME pawn)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
