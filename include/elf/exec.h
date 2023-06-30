@@ -22,17 +22,39 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#ifndef _EXEC_H_
+#define _EXEC_H_
 
-#if ELF /* ELF methods */
+#include <elf.h>
+#include <link.h>
+#include <arpa/inet.h>
 
-int pawn_exec(unsigned char *, char **, char **);
-int pawn_exec_fd(unsigned char *, char **, char **);
+#define PAGE_FLOOR(addr) ((addr) & (-PAGE_SIZE))
+#define PAGE_CEIL(addr) (PAGE_FLOOR((addr) + PAGE_SIZE - 1))
 
-#elif MACHO /* Mach-O methods */
-
-int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
+#if UINTPTR_MAX > 0xffffffff
+#define ELFCLASS_NATIVE ELFCLASS64
+#else
+#define ELFCLASS_NATIVE ELFCLASS32
 #endif
 
-#endif /* _PAWN_H_ */
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 0x1000
+#endif
+
+#define ELFDATA_NATIVE ((htonl(1) == 1) ? ELFDATA2MSB : ELFDATA2LSB)
+
+typedef struct elf_map {
+    ElfW(Ehdr) *ehdr;
+    ElfW(Addr) entry;
+    char *interp;
+} elf_map_t;
+
+void exec_load_sections(size_t *, ElfW(Ehdr) *, ElfW(Ehdr) *);
+void exec_stack_auxiliary(size_t *);
+void exec_setup_stack(size_t *, int, char **, char **, size_t *, ElfW(Ehdr) *, ElfW(Ehdr) *);
+bool exec_elf_sanity(ElfW(Ehdr) *);
+void exec_map_elf(unsigned char *, elf_map_t *);
+int exec_with_stack(unsigned char *, char **, char **, size_t *);
+
+#endif /* _EXEC_H_ */

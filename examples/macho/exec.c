@@ -22,17 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-#if ELF /* ELF methods */
+#include <pawn.h>
 
-int pawn_exec(unsigned char *, char **, char **);
-int pawn_exec_fd(unsigned char *, char **, char **);
+int main(int argc, char *argv[], char *env[])
+{
+    if (argc < 2) {
+        printf("usage: %s <file>\n", argv[0]);
+        return 1;
+    }
 
-#elif MACHO /* Mach-O methods */
+    FILE *file = fopen(argv[1], "rb");
 
-int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
-#endif
+    if (file == NULL)
+        return 1;
 
-#endif /* _PAWN_H_ */
+    fseek(file, 0L, SEEK_END);
+    size_t size = ftell(file);
+    rewind(file);
+
+    unsigned char *bundle = malloc(size);
+    if (bundle == NULL)
+        return 1;
+
+    fread(bundle, sizeof(unsigned char), size, file);
+
+    pawn_exec_bundle(bundle, size, argv + 1, NULL);
+    fclose(file);
+
+    return 0;
+}

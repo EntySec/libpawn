@@ -22,17 +22,10 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#include <stdio.h>
 
-#if ELF /* ELF methods */
-
-int pawn_exec(unsigned char *, char **, char **);
-int pawn_exec_fd(unsigned char *, char **, char **);
-
-#elif MACHO /* Mach-O methods */
-
-int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
-#endif
-
-#endif /* _PAWN_H_ */
+int main(int argc, char *argv[], char *env[])
+{
+    printf("Hello from memory!\n");
+    return 0;
+}

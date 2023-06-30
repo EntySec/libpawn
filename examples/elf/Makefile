@@ -22,45 +22,17 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.0.0)
-project(libpawn VERSION 1.0.0)
+CC = gcc
+CFLAGS = -Wall -Wextra
+LDFLAGS = -lpawn
 
-option(USE_DEBUG "Build in debug mode" OFF)
+all: main test
 
-if (USE_DEBUG)
-    add_definitions(-DDEBUG=1)
-endif()
+main: main.c
+	$(CC) $(CFLAGS) -o main main.c $(LDFLAGS)
 
-include_directories(include)
+test: test.c
+	$(CC) $(CFLAGS) -o test test.c
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(EXEC "macho")
-    add_definitions(-DMACHO=1)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated")
-
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(EXEC "pe")
-    add_definitions(-DPE=1)
-
-else()
-    set(EXEC "elf")
-    add_definitions(-DELF=1)
-endif()
-
-include_directories(include/${EXEC})
-
-if (DEFINED ENV{ARCH})
-    set(ARCH $ENV{ARCH})
-else()
-    set(ARCH "x64")
-endif()
-
-include_directories("include/${EXEC}/${ARCH}/")
-
-file(GLOB PAWN_SOURCES src/${EXEC}/*.c)
-add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
-set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
-set_target_properties(pawn PROPERTIES OUTPUT_NAME "pawn")
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+clean:
+	rm main test
