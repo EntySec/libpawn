@@ -29,7 +29,7 @@ LDFLAGS = -lpawn
 all: main test.bundle
 
 main: main.c
-	$(CC) $(CFLAGS) -o main main.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -DMACHO=1 -o main main.c $(LDFLAGS)
 
 test.bundle: test.c
 	$(CC) $(CFLAGS) -bundle -o test test.c
