@@ -28,10 +28,10 @@
 
 #include <pawn.h>
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char *argv[], char *env[])
 {
     if (argc < 2) {
-        printf("Usage: %s <file>\n", argv[0]);
+        printf("usage: %s <file>\n", argv[0]);
         return 1;
     }
 
@@ -44,13 +44,13 @@ int main(int argc, char **argv, char **env)
     size_t size = ftell(file);
     rewind(file);
 
-    unsigned char *elf = malloc(size);
-    if (elf == NULL)
+    unsigned char *bundle = malloc(size);
+    if (bundle == NULL)
         return 1;
 
-    fread(elf, sizeof(unsigned char), size, file);
+    fread(bundle, sizeof(unsigned char), size, file);
 
-    pawn_exec_fd(elf, argv + 1, NULL);
+    pawn_exec_bundle(bundle, size, argv + 1, NULL);
     fclose(file);
 
     return 0;

@@ -46,7 +46,7 @@
 #include <log.h>
 #include <asm.h>
 
-static void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
+void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
 {
     size_t elf_size = (size_t)elf, interp_size = (size_t)interp;
 
@@ -95,7 +95,7 @@ static void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp
     }
 }
 
-static void exec_stack_auxiliary(size_t *auxv)
+void exec_stack_auxiliary(size_t *auxv)
 {
     unsigned long at_sysinfo = getauxval(AT_SYSINFO_EHDR);
 
@@ -115,8 +115,8 @@ static void exec_stack_auxiliary(size_t *auxv)
     auxv[19] = AT_NULL;
 }
 
-static void exec_setup_stack(size_t *stack, int argc, char **argv,
-                             char **env, size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
+void exec_setup_stack(size_t *stack, int argc, char **argv,
+                      char **env, size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
 {
     int i;
 
@@ -148,7 +148,7 @@ static void exec_setup_stack(size_t *stack, int argc, char **argv,
     exec_load_sections(auxv_base, elf, interp);
 }
 
-static bool exec_elf_sanity(ElfW(Ehdr) *ehdr)
+bool exec_elf_sanity(ElfW(Ehdr) *ehdr)
 {
     log_debug("* Checking if actual ELF is provided\n");
 
@@ -160,7 +160,7 @@ static bool exec_elf_sanity(ElfW(Ehdr) *ehdr)
 	  ehdr->e_ident[EI_DATA] == ELFDATA_NATIVE);
 }
 
-static void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
+void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
 {
     unsigned char *mapping = MAP_FAILED;
     size_t voffset = 0, total = 0;
@@ -294,63 +294,6 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
     for (argc = 0; argv[argc]; argc++);
 
     exec_setup_stack(stack, argc, argv, env, NULL, elf_map_new.ehdr, interp.ehdr);
-    ASM_JUMP(interp.entry, stack);
-    return 0;
-}
-
-int exec(unsigned char *elf, char **argv, char **env)
-{
-    log_debug("* Setting up new stack, page size (%d)\n", PAGE_SIZE);
-
-    size_t *stack = (void *)(2047 * PAGE_SIZE + (char *)mmap(0, 2048 * PAGE_SIZE,
-            PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_GROWSDOWN, -1, 0));
-
-    return exec_with_stack(elf, argv, env, stack);
-}
-
-int exec_fd(unsigned char *elf, char **argv, char **env)
-{
-    int fd;
-    size_t end = 0, done = 0;
-
-    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *)elf;
-    ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
-
-    if (!exec_elf_sanity(ehdr))
-        return -1;
-
-    log_debug("* Iterating ELF and searching for PT_LOAD\n");
-
-    for (int i = 0; i < ehdr->e_phnum; i++, phdr++)
-    {
-        if (phdr->p_type == PT_LOAD)
-        {
-            if (end < phdr->p_offset + phdr->p_filesz)
-            {
-                end = phdr->p_offset + phdr->p_filesz;
-            }
-        }
-    }
-
-    log_debug("* Creating file descriptor\n");
-
-    fd = syscall(SYS_memfd_create, "", MFD_CLOEXEC);
-    if (ftruncate(fd, end) < 0) {
-        log_debug("* Unable to write ELF to the file descriptor (%d)\n", fd);
-        return -1;
-    }
-
-    log_debug("* Writing to the file descriptor (%d)\n", fd);
-
-    while (done < end)
-    {
-        if (write(fd, elf + done, end - done) < 0)
-            return -1;
-        done += 1;
-    }
-
-    log_debug("* Executing from the file descriptor (%d)\n", fd);
-
-    syscall(SYS_execveat, fd, "", argv, env, 0x1000);
+    ASM_JUMP(interp.entry, stack); /* down the rabbit hole! */
     return 0;
 }

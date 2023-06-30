@@ -28,7 +28,7 @@
 
 #include <pawn.h>
 
-int main(int argc, char **argv, char **env)
+int main(int argc, char *argv[], char *env[])
 {
     if (argc < 2) {
         printf("usage: %s <file>\n", argv[0]);
