@@ -25,6 +25,8 @@
 #ifndef _PAWN_H_
 #define _PAWN_H_
 
+#define PAWN_NATIVE __attribute__(())
+
 #ifdef ELF /* ELF methods */
 
 int pawn_exec(unsigned char *, char **, char **);
