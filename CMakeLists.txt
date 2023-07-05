@@ -26,7 +26,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(libpawn VERSION 1.0.0)
 
 option(DEBUG "Build in debug mode" OFF)
-set(ARCH "Build for specific architecture" CACHE STRING x64)
+set(ARCH "Build for specific architecture" CACHE STRING "x64")
 
 if (DEBUG)
     add_compile_definitions(DEBUG)
