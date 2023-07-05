@@ -28,6 +28,7 @@
 #include <elf.h>
 #include <link.h>
 #include <arpa/inet.h>
+#include <stdbool.h>
 
 #define PAGE_FLOOR(addr) ((addr) & (-PAGE_SIZE))
 #define PAGE_CEIL(addr) (PAGE_FLOOR((addr) + PAGE_SIZE - 1))
