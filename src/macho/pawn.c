@@ -34,7 +34,7 @@
  * NSCreateObjectFileImageFromMemory API.
  */
 
-int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env)
+int PAWN_NATIVE pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env)
 {
     if (env == NULL)
     {
