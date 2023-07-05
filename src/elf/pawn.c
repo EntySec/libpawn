@@ -22,6 +22,25 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+#include <elf.h>
+#include <fcntl.h>
+#include <syscall.h>
+#include <unistd.h>
+#include <link.h>
+#include <string.h>
+#include <errno.h>
+
+#include <linux/memfd.h>
+
+#include <sys/types.h>
+#include <sys/auxv.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+
 #include <log.h>
 #include <pawn.h>
 #include <exec.h>
