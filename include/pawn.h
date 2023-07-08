@@ -27,6 +27,8 @@
 
 #define PAWN_NATIVE __attribute__(())
 
+extern char **environ;
+
 #ifdef ELF /* ELF methods */
 
 int PAWN_NATIVE pawn_exec(unsigned char *, char **, char **);
