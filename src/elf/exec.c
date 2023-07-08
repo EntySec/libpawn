@@ -245,10 +245,8 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
     if (!exec_elf_sanity((ElfW(Ehdr) *)elf))
         return -1;
 
-    if (env == NULL) {
-        char **environ;
+    if (env == NULL)
         env = environ;
-    }
 
     exec_map_elf(elf, &elf_map_new);
 
