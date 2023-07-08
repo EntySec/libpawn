@@ -36,12 +36,6 @@
 
 int PAWN_NATIVE pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env)
 {
-    if (env == NULL)
-    {
-        char **environ;
-        env = environ;
-    }
-
     int (*entry)(int, char **, char **);
     int argc;
 
