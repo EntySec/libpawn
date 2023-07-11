@@ -25,19 +25,17 @@
 #ifndef _PAWN_H_
 #define _PAWN_H_
 
-#define PAWN_NATIVE __attribute__(())
-
 extern char **environ;
 
 #ifdef ELF /* ELF methods */
 
-int PAWN_NATIVE pawn_exec(unsigned char *, char **, char **);
-int PAWN_NATIVE pawn_exec_fd(unsigned char *, char **, char **);
+int pawn_exec(unsigned char *, char **, char **);
+int pawn_exec_fd(unsigned char *, char **, char **);
 
 #else
 #ifdef MACHO /* Mach-O methods */
 
-int PAWN_NATIVE pawn_exec_bundle(unsigned char *, size_t, char **, char **);
+int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
 #endif
 #endif
 
