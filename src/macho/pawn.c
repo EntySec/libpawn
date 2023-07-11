@@ -43,16 +43,16 @@ int PAWN_NATIVE pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv
 
     log_debug("* Creating object from memory\n");
 
-    NSObjectFileImage fileImage = NULL;
-    NSCreateObjectFileImageFromMemory(bundle, size, &fileImage);
+    NSObjectFileImage image = NULL;
+    NSCreateObjectFileImageFromMemory(bundle, size, &image);
 
-    if (fileImage == NULL)
+    if (image == NULL)
     {
         log_debug("* Unable to create object from memory\n");
         return -1;
     }
 
-    NSModule module = NSLinkModule(fileImage, "module", NSLINKMODULE_OPTION_NONE);
+    NSModule module = NSLinkModule(image, "module", NSLINKMODULE_OPTION_NONE);
     NSSymbol symbol = NSLookupSymbolInModule(module, "_main");
     entry = NSAddressOfSymbol(symbol);
 
@@ -61,7 +61,7 @@ int PAWN_NATIVE pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv
     entry(argc, argv, env); /* down the rabbit hole! */
 
     NSUnLinkModule(module, NSUNLINKMODULE_OPTION_NONE);
-    NSDestroyObjectFileImage(fileImage);
+    NSDestroyObjectFileImage(image);
 
     return 0;
 }
