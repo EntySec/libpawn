@@ -52,7 +52,7 @@
  * NOTE: May not work for statically linked executables.
  */
 
-int PAWN_NATIVE pawn_exec(unsigned char *elf, char **argv, char **env)
+int pawn_exec(unsigned char *elf, char **argv, char **env)
 {
     log_debug("* Setting up new stack, page size (%d)\n", PAGE_SIZE);
 
@@ -70,7 +70,7 @@ int PAWN_NATIVE pawn_exec(unsigned char *elf, char **argv, char **env)
  * NOTE: Works with statically linked executables too.
  */
 
-int PAWN_NATIVE pawn_exec_fd(unsigned char *elf, char **argv, char **env)
+int pawn_exec_fd(unsigned char *elf, char **argv, char **env)
 {
     int fd;
     size_t end = 0, done = 0;
