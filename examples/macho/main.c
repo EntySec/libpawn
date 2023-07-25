@@ -30,7 +30,8 @@
 
 int main(int argc, char *argv[], char *env[])
 {
-    if (argc < 2) {
+    if (argc < 2)
+    {
         printf("usage: %s <file>\n", argv[0]);
         return 1;
     }
@@ -51,6 +52,8 @@ int main(int argc, char *argv[], char *env[])
     fread(bundle, sizeof(unsigned char), size, file);
 
     pawn_exec_bundle(bundle, size, argv + 1, NULL);
+
+    free(bundle);
     fclose(file);
 
     return 0;
