@@ -32,6 +32,7 @@ C library that is intended for providing methods for executing and injecting cod
 cmake -B build
 cd build
 make
+sudo make install
 ```
 
 ## API usage
