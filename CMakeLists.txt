@@ -59,7 +59,7 @@ set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(pawn PROPERTIES OUTPUT_NAME pawn)
 
-install(FILES include/pawn.h DESTIONATION include)
+install(FILES include/pawn.h DESTINATION include)
 install(TARGETS pawn)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
