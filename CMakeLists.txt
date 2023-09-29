@@ -34,6 +34,8 @@ endif()
 
 include_directories(include)
 
+add_compile_options(-pedantic-errors)
+
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(FILE macho)
     add_compile_definitions(MACHO)
@@ -54,7 +56,7 @@ include_directories(include/${FILE}/${ARCH}/)
 file(GLOB PAWN_SOURCES src/${FILE}/*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
 
-set_property(TARGET pawn PROPERTY C_STANDART 99)
+set_property(TARGET pawn PROPERTY C_STANDART 90)
 set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 set_target_properties(pawn PROPERTIES OUTPUT_NAME pawn)

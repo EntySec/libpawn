@@ -39,6 +39,6 @@ void log_debug(const char* fmt, ...)
 
     vprintf(fmt, args);
 
-    va_end (args);
+    va_end(args);
     #endif
 }

@@ -30,22 +30,25 @@
 
 int main(int argc, char *argv[], char *env[])
 {
+    FILE *file;
+    size_t size;
+    unsigned char *elf;
+
     if (argc < 2)
     {
         printf("usage: %s <file>\n", argv[0]);
         return 1;
     }
 
-    FILE *file = fopen(argv[1], "rb");
-
+    file = fopen(argv[1], "rb");
     if (file == NULL)
         return 1;
 
     fseek(file, 0L, SEEK_END);
-    size_t size = ftell(file);
+    size = ftell(file);
     rewind(file);
 
-    unsigned char *elf = malloc(size);
+    elf = malloc(size);
     if (elf == NULL)
         return 1;
 

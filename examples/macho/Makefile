@@ -23,7 +23,7 @@
 #
 
 CC = clang
-CFLAGS = -Wall -Wextra
+CFLAGS = -std=c90 -Wall -Wextra -pedantic-errors
 LDFLAGS = -lpawn
 
 all: main test.bundle

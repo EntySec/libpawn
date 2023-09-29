@@ -48,47 +48,53 @@
 
 void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
 {
-    size_t elf_size = (size_t)elf, interp_size = (size_t)interp;
+    int iter;
+
+    size_t elf_size;
+    size_t interp_size;
+
+    elf_size = (size_t)elf;
+    interp_size = (size_t)interp;
 
     log_debug("* Preparing to load ELF sections\n");
 
-    for (int i = 0; auxv[i]; i += 2)
+    for (iter = 0; auxv[iter]; iter += 2)
     {
-        switch (auxv[i])
+        switch (auxv[iter])
         {
             case AT_ENTRY:
                 log_debug("* Entry section loaded\n");
-                auxv[i + 1] = (elf->e_entry < elf_size ? elf_size + elf->e_entry : elf->e_entry);
+                auxv[iter + 1] = (elf->e_entry < elf_size ? elf_size + elf->e_entry : elf->e_entry);
 
                 break;
 
             case AT_BASE:
                 log_debug("* Base section loaded\n");
-                auxv[i + 1] = interp_size;
+                auxv[iter + 1] = interp_size;
 
                 break;
 
             case AT_SECURE:
                 log_debug("* Secure section loaded\n");
-                auxv[i + 1] = 0;
+                auxv[iter + 1] = 0;
 
                 break;
 
             case AT_PHNUM:
                 log_debug("* Number of program headers loaded\n");
-                auxv[i + 1] = elf->e_phnum;
+                auxv[iter + 1] = elf->e_phnum;
 
                 break;
 
             case AT_PHENT:
                 log_debug("* Length of program header entry loaded\n");
-                auxv[i + 1] = elf->e_phentsize;
+                auxv[iter + 1] = elf->e_phentsize;
 
                 break;
 
             case AT_PHDR:
                 log_debug("* Program header address loaded\n");
-                auxv[i + 1] = elf_size + elf->e_phoff;
+                auxv[iter + 1] = elf_size + elf->e_phoff;
 
                 break;
         }
@@ -97,7 +103,9 @@ void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
 
 void exec_stack_auxiliary(size_t *auxv)
 {
-    unsigned long at_sysinfo = getauxval(AT_SYSINFO_EHDR);
+    unsigned long at_sysinfo;
+
+    at_sysinfo = getauxval(AT_SYSINFO_EHDR);
 
     auxv[0] = AT_BASE;
     auxv[2] = AT_PHDR;
@@ -118,30 +126,31 @@ void exec_stack_auxiliary(size_t *auxv)
 void exec_setup_stack(size_t *stack, int argc, char **argv,
                       char **env, size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp)
 {
-    int i;
+    int iter;
+    size_t *auxv_base;
 
     log_debug("* Setting up the stack\n");
 
     stack[0] = argc;
 
-    for (i = 0; i < argc; i++)
-        stack[i + 1] = (size_t)argv[i];
+    for (iter = 0; iter < argc; iter++)
+        stack[iter + 1] = (size_t)argv[iter];
 
-    stack[i + 1] = 0;
+    stack[iter + 1] = 0;
 
-    for (i = 0; env[i]; i++)
-        stack[i + 1 + argc] = (size_t)env[i];
+    for (iter = 0; env[iter]; iter++)
+        stack[iter + 1 + argc] = (size_t)env[iter];
 
-    stack[i + 1 + argc] = 0;
-    size_t *auxv_base = stack + i + argc + 2;
+    stack[iter + 1 + argc] = 0;
+    auxv_base = stack + iter + argc + 2;
 
     if (auxv)
     {
-        for (i = 0; auxv[i]; i++)
-            auxv_base[i] = auxv[i];
+        for (iter = 0; auxv[iter]; iter++)
+            auxv_base[iter] = auxv[iter];
 
-        auxv_base[i] = 0;
-        auxv_base[i + 1] = 0;
+        auxv_base[iter] = 0;
+        auxv_base[iter + 1] = 0;
     } else
         exec_stack_auxiliary(auxv_base);
 
@@ -162,15 +171,31 @@ bool exec_elf_sanity(ElfW(Ehdr) *ehdr)
 
 void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
 {
-    unsigned char *mapping = MAP_FAILED;
-    size_t voffset = 0, total = 0;
+    int iter;
+    int prot;
 
-    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *)elf;
-    ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
+    unsigned char *mapping;
+    unsigned char *src;
+
+    size_t voffset;
+    size_t total;
+    size_t length;
+
+    ElfW(Ehdr) *ehdr;
+    ElfW(Addr) dst;
+    ElfW(Phdr) *phdr;
+
+    mapping = MAP_FAILED;
+
+    voffset = 0;
+    total = 0;
+
+    ehdr = (ElfW(Ehdr) *)elf;
+    phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
 
     log_debug("* Mapping ELF into memory\n");
 
-    for (int i = 0; i < ehdr->e_phnum; i++, ++phdr)
+    for (iter = 0; iter < ehdr->e_phnum; iter++, ++phdr)
     {
         if (phdr->p_type == PT_LOAD)
         {
@@ -184,7 +209,7 @@ void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
 
     log_debug("* Iterating and loading segments\n");
 
-    for (int i = 0; i < ehdr->e_phnum; i++, phdr++)
+    for (iter = 0; iter < ehdr->e_phnum; iter++, phdr++)
     {
         if (phdr->p_type == PT_LOAD)
         {
@@ -195,7 +220,8 @@ void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
 
                 mapping = mmap((void *)PAGE_FLOOR(phdr->p_vaddr), PAGE_CEIL(total), PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
 
-                if (mapping == MAP_FAILED) {
+                if (mapping == MAP_FAILED)
+                {
                     log_debug("* Failed to allocate space for ELF (%s)\n", strerror(errno));
                     goto mmap_fail;
                 }
@@ -210,16 +236,16 @@ void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new)
                 elf_map_new->entry = voffset + ehdr->e_entry;
             }
 
-            unsigned char *src = elf + phdr->p_offset;
-            ElfW(Addr) dst = voffset + phdr->p_vaddr;
-            size_t length = phdr->p_filesz;
+            src = elf + phdr->p_offset;
+            dst = voffset + phdr->p_vaddr;
+            length = phdr->p_filesz;
 
             log_debug("* Copying %p of size %08zx to %p\n", (void *)dst, src, length);
 
             memcpy((void *)dst, src, length);
-            int prot = (((phdr->p_flags & PF_R) ? PROT_READ : 0) |
-                        ((phdr->p_flags & PF_W) ? PROT_WRITE : 0) |
-                        ((phdr->p_flags & PF_X) ? PROT_EXEC : 0));
+            prot = (((phdr->p_flags & PF_R) ? PROT_READ : 0) |
+                    ((phdr->p_flags & PF_W) ? PROT_WRITE : 0) |
+                    ((phdr->p_flags & PF_X) ? PROT_EXEC : 0));
             if (mprotect((void *)PAGE_FLOOR(dst), PAGE_CEIL(phdr->p_memsz), prot) != 0)
                 goto mprotect_fail;
         } else if (phdr->p_type == PT_INTERP)
@@ -240,7 +266,17 @@ mprotect_fail:
 
 int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
 {
-    elf_map_t elf_map_new = {0}, interp = {0};
+    int fd;
+    int argc;
+
+    struct stat statbuf;
+    unsigned char *code;
+
+    elf_map_t elf_map_new;
+    elf_map_t interp;
+
+    elf_map_new = {0};
+    interp = {0};
 
     if (!exec_elf_sanity((ElfW(Ehdr) *)elf))
         return -1;
@@ -250,26 +286,26 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
 
     exec_map_elf(elf, &elf_map_new);
 
-    if (elf_map_new.ehdr == MAP_FAILED) {
+    if (elf_map_new.ehdr == MAP_FAILED)
+    {
         log_debug("* Unable to map ELF file (%s)\n", strerror(errno));
         return -1;
     }
 
     if (elf_map_new.interp)
     {
-        int fd = open(elf_map_new.interp, O_RDONLY);
+        fd = open(elf_map_new.interp, O_RDONLY);
 
         if (fd < 0)
             return -1;
 
-        struct stat statbuf;
-
         if (fstat(fd, &statbuf) < 0)
             return -1;
 
-        unsigned char *code = mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+        code = mmap(NULL, statbuf.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
-        if (code == MAP_FAILED) {
+        if (code == MAP_FAILED)
+        {
             log_debug("* Unable to allocate space for ELF\n");
             return -1;
         }
@@ -278,7 +314,8 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
         exec_map_elf(code, &interp);
         munmap(code, statbuf.st_size);
 
-        if (interp.ehdr == MAP_FAILED) {
+        if (interp.ehdr == MAP_FAILED)
+        {
             log_debug("* Unable to map interpreter (%s)\n", strerror(errno));
             return -1;
         }
@@ -287,11 +324,10 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
     } else
         interp = elf_map_new;
 
-    int argc;
-
     for (argc = 0; argv[argc]; argc++);
 
     exec_setup_stack(stack, argc, argv, env, NULL, elf_map_new.ehdr, interp.ehdr);
-    ASM_JUMP(interp.entry, stack); /* down the rabbit hole! */
+    ASM_JUMP(interp.entry, stack);
+
     return 0;
 }
