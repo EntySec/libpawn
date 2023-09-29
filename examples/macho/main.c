@@ -30,14 +30,17 @@
 
 int main(int argc, char *argv[], char *env[])
 {
+    FILE *file;
+    size_t size;
+    unsigned char *bundle;
+
     if (argc < 2)
     {
         printf("usage: %s <file>\n", argv[0]);
         return 1;
     }
 
-    FILE *file = fopen(argv[1], "rb");
-
+    file = fopen(argv[1], "rb");
     if (file == NULL)
         return 1;
 
@@ -45,7 +48,7 @@ int main(int argc, char *argv[], char *env[])
     size_t size = ftell(file);
     rewind(file);
 
-    unsigned char *bundle = malloc(size);
+    bundle = malloc(size);
     if (bundle == NULL)
         return 1;
 

@@ -36,14 +36,18 @@
 
 int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env)
 {
-    int (*entry)(int, char **, char **);
+    bundle_entry_t entry;
     int argc;
+
+    NSModule module;
+    NSSymbol symbol;
+    NSObjectFileImage image;
 
     for (argc = 0; argv[argc]; argc++);
 
     log_debug("* Creating object from memory\n");
 
-    NSObjectFileImage image = NULL;
+    image = NULL;
     NSCreateObjectFileImageFromMemory(bundle, size, &image);
 
     if (image == NULL)
@@ -52,13 +56,13 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, char **argv, char **env
         return -1;
     }
 
-    NSModule module = NSLinkModule(image, "module", NSLINKMODULE_OPTION_NONE);
-    NSSymbol symbol = NSLookupSymbolInModule(module, "_main");
-    entry = NSAddressOfSymbol(symbol);
+    module = NSLinkModule(image, "module", NSLINKMODULE_OPTION_NONE);
+    symbol = NSLookupSymbolInModule(module, "_main");
+    entry = (bundle_entry_t)NSAddressOfSymbol(symbol);
 
     log_debug("* Jumping to the entry (%p)\n", (void *)entry);
 
-    entry(argc, argv, env); /* down the rabbit hole! */
+    entry(argc, argv, env);
 
     NSUnLinkModule(module, NSUNLINKMODULE_OPTION_NONE);
     NSDestroyObjectFileImage(image);

@@ -54,9 +54,11 @@
 
 int pawn_exec(unsigned char *elf, char **argv, char **env)
 {
+    size_t *stack;
+
     log_debug("* Setting up new stack, page size (%d)\n", PAGE_SIZE);
 
-    size_t *stack = (void *)(2047 * PAGE_SIZE + (char *)mmap(0, 2048 * PAGE_SIZE,
+    stack = (void *)(2047 * PAGE_SIZE + (char *)mmap(0, 2048 * PAGE_SIZE,
             PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_GROWSDOWN, -1, 0));
 
     return exec_with_stack(elf, argv, env, stack);
@@ -73,17 +75,26 @@ int pawn_exec(unsigned char *elf, char **argv, char **env)
 int pawn_exec_fd(unsigned char *elf, char **argv, char **env)
 {
     int fd;
-    size_t end = 0, done = 0;
+    int iter;
 
-    ElfW(Ehdr) *ehdr = (ElfW(Ehdr) *)elf;
-    ElfW(Phdr) *phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
+    size_t end;
+    size_t done;
+
+    ElfW(Ehdr) *ehdr;
+    ElfW(Phdr) *phdr;
+
+    end = 0;
+    done = 0;
+
+    ehdr = (ElfW(Ehdr) *)elf;
+    phdr = (ElfW(Phdr) *)(elf + ehdr->e_phoff);
 
     if (!exec_elf_sanity(ehdr))
         return -1;
 
     log_debug("* Iterating ELF and searching for PT_LOAD\n");
 
-    for (int i = 0; i < ehdr->e_phnum; i++, phdr++)
+    for (iter = 0; iter < ehdr->e_phnum; iter++, phdr++)
     {
         if (phdr->p_type == PT_LOAD)
         {

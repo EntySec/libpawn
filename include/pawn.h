@@ -35,6 +35,8 @@ int pawn_exec_fd(unsigned char *, char **, char **);
 #else
 #ifdef MACHO /* Mach-O methods */
 
+typedef int (*bundle_entry_t)(int, char **, char **);
+
 int pawn_exec_bundle(unsigned char *, size_t, char **, char **);
 #endif
 #endif
