@@ -275,8 +275,13 @@ int exec_with_stack(unsigned char *elf, char **argv, char **env, size_t *stack)
     elf_map_t elf_map_new;
     elf_map_t interp;
 
-    elf_map_new = {0};
-    interp = {0};
+    elf_map_new.ehdr = 0;
+    elf_map_new.entry = 0;
+    elf_map_new.interp = 0;
+
+    interp.ehdr = 0;
+    interp.entry = 0;
+    interp.interp = 0;
 
     if (!exec_elf_sanity((ElfW(Ehdr) *)elf))
         return -1;
