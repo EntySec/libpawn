@@ -34,7 +34,7 @@ endif()
 
 include_directories(include)
 
-add_compile_options(-pedantic-errors)
+add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(FILE macho)
