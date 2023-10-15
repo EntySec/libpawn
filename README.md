@@ -46,7 +46,7 @@ sudo make install
 Execute main function from Mach-O bundle from buffer and pass `argv` and `env` as arguments.
 
 ```c
-int pawn_exec_bundle(usigned char *bundle, size_t size, char **argv, char **env);
+int pawn_exec_bundle(usigned char *bundle, size_t size, char *argv[], char *env[]);
 ```
 
 ### ELF
@@ -54,7 +54,7 @@ int pawn_exec_bundle(usigned char *bundle, size_t size, char **argv, char **env)
 Execute ELF from buffer and pass `argv` and `env` to it.
 
 ```c
-int pawn_exec(unsigned char *elf, char **argv, char **env)
+int pawn_exec(unsigned char *elf, char *argv[], char *env[])
 ```
 
 **NOTE:** This method does not work for statically linked targets since it uses dynamic interpreter as a part of ELF loading chain.
@@ -62,7 +62,7 @@ int pawn_exec(unsigned char *elf, char **argv, char **env)
 Write ELF to the file descriptor from buffer and execute it.
 
 ```c
-int pawn_exec_fd(unsigned char *elf, char **argv, char **env)
+int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
 ```
 
 ### Examples
