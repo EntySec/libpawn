@@ -38,16 +38,13 @@ add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(FILE macho)
-    add_compile_definitions(MACHO)
     add_compile_options(-Wno-deprecated)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
     set(FILE pe)
-    add_compile_definitions(PE)
 
 else()
     set(FILE elf)
-    add_compile_definitions(ELF)
 endif()
 
 include_directories(include/${FILE})

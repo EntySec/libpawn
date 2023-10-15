@@ -29,7 +29,7 @@ LDFLAGS = -lpawn
 all: main test
 
 main: main.c
-	$(CC) $(CFLAGS) -DELF -o main main.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -o main main.c $(LDFLAGS)
 
 test: test.c
 	$(CC) $(CFLAGS) -o test test.c

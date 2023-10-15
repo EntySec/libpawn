@@ -27,15 +27,17 @@
 
 extern char **environ;
 
-#ifdef ELF
-int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
-int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
-#else
-#ifdef MACHO
+#if defined(__APPLE__)
 typedef int (*bundle_entry_t)(int argc, char *argv[], char *env[]);
 int pawn_exec_bundle(unsigned char *bundle, size_t size, \
                      char *argv[], char *env[]);
-#endif
+
+#elif defined(__linux__) || defined(__unix__)
+int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
+int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
+
+#else
+#error "Unsupported OS"
 #endif
 
 #endif
