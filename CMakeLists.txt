@@ -53,7 +53,7 @@ endif()
 include_directories(include/${FILE})
 include_directories(include/${FILE}/${ARCH}/)
 
-file(GLOB PAWN_SOURCES src/${FILE}/*.c)
+file(GLOB PAWN_SOURCES src/${FILE}_*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
 
 set_property(TARGET pawn PROPERTY C_STANDART 89)

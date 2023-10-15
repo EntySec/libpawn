@@ -27,11 +27,7 @@
 
 #include <log.h>
 
-/*
- * If DEBUG is specified, then log information provided.
- */
-
-void log_debug(const char *fmt, ...)
+void log_debug(const char *fmt __attribute__((unused)), ...)
 {
     #ifdef DEBUG
     va_list args;

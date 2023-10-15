@@ -26,6 +26,17 @@
 
 int main(int argc, char *argv[], char *env[])
 {
-    printf("Hello from memory!\n");
+    int iter;
+
+    for (iter = 0; iter < argc; iter++)
+    {
+        printf("argv[%d]: %s\n", iter, argv[iter]);
+    }
+
+    for (iter = 0; env[iter] != NULL; iter++)
+    {
+        printf("env[%d]: %s\n", iter, env[iter]);
+    }
+
     return 0;
 }

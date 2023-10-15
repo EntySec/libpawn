@@ -41,20 +41,26 @@ int main(int argc, char *argv[], char *env[])
     }
 
     file = fopen(argv[1], "rb");
+
     if (file == NULL)
+    {
         return 1;
+    }
 
     fseek(file, 0L, SEEK_END);
     size = ftell(file);
     rewind(file);
 
     elf = malloc(size);
+
     if (elf == NULL)
+    {
         return 1;
+    }
 
     fread(elf, sizeof(unsigned char), size, file);
 
-    pawn_exec(elf, argv + 1, NULL);
+    pawn_exec(elf, argv + 1, env);
 
     free(elf);
     fclose(file);

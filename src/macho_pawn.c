@@ -22,20 +22,45 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#include <stdio.h>
 
-extern char **environ;
+#include <mach-o/dyld.h>
 
-#ifdef ELF
-int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
-int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
-#else
-#ifdef MACHO
-typedef int (*bundle_entry_t)(int argc, char *argv[], char *env[]);
-int pawn_exec_bundle(unsigned char *bundle, size_t size, \
-                     char *argv[], char *env[]);
-#endif
-#endif
+#include <log.h>
+#include <pawn.h>
 
-#endif
+int pawn_exec_bundle(unsigned char *bundle, size_t size, char *argv[], char *env[])
+{
+    bundle_entry_t entry;
+    int argc;
+
+    NSModule module;
+    NSSymbol symbol;
+    NSObjectFileImage image;
+
+    for (argc = 0; argv[argc]; argc++);
+
+    log_debug("* Creating object from memory\n");
+
+    image = NULL;
+    NSCreateObjectFileImageFromMemory(bundle, size, &image);
+
+    if (image == NULL)
+    {
+        log_debug("* Unable to create object from memory\n");
+        return -1;
+    }
+
+    module = NSLinkModule(image, "module", NSLINKMODULE_OPTION_NONE);
+    symbol = NSLookupSymbolInModule(module, "_main");
+    entry = (bundle_entry_t)NSAddressOfSymbol(symbol);
+
+    log_debug("* Jumping to the entry (%p)\n", (void *)entry);
+
+    entry(argc, argv, env);
+
+    NSUnLinkModule(module, NSUNLINKMODULE_OPTION_NONE);
+    NSDestroyObjectFileImage(image);
+
+    return 0;
+}

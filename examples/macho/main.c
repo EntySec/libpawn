@@ -41,22 +41,26 @@ int main(int argc, char *argv[], char *env[])
     }
 
     file = fopen(argv[1], "rb");
+
     if (file == NULL)
+    {
         return 1;
+    }
 
     fseek(file, 0L, SEEK_END);
-    size_t size = ftell(file);
+    size = ftell(file);
     rewind(file);
 
     bundle = malloc(size);
+
     if (bundle == NULL)
+    {
         return 1;
+    }
 
     fread(bundle, sizeof(unsigned char), size, file);
 
-    pawn_exec_bundle(bundle, size, argv + 1, NULL);
-
-    free(bundle);
+    pawn_exec_bundle(bundle, size, argv + 1, env);
     fclose(file);
 
     return 0;

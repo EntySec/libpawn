@@ -51,11 +51,12 @@ typedef struct elf_map {
     char *interp;
 } elf_map_t;
 
-void exec_load_sections(size_t *, ElfW(Ehdr) *, ElfW(Ehdr) *);
-void exec_stack_auxiliary(size_t *);
-void exec_setup_stack(size_t *, int, char **, char **, size_t *, ElfW(Ehdr) *, ElfW(Ehdr) *);
-bool exec_elf_sanity(ElfW(Ehdr) *);
-void exec_map_elf(unsigned char *, elf_map_t *);
-int exec_with_stack(unsigned char *, char **, char **, size_t *);
+void exec_load_sections(size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp);
+void exec_stack_auxiliary(size_t *auxv);
+void exec_setup_stack(size_t *stack, int argc, char *argv[], char *env[], \
+                      size_t *auxv, ElfW(Ehdr) *elf, ElfW(Ehdr) *interp);
+bool exec_elf_sanity(ElfW(Ehdr) *ehdr);
+void exec_map_elf(unsigned char *elf, elf_map_t *elf_map_new);
+int exec_with_stack(unsigned char *elf, char *argv[], char *env[], size_t *stack);
 
-#endif /* _EXEC_H_ */
+#endif
