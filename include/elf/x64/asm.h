@@ -35,4 +35,4 @@
         : "rdx", "memory" \
     )
 
-#endif /* _ASM_H_ */
+#endif
