@@ -34,17 +34,16 @@ endif()
 
 include_directories(include)
 
-add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
-
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(FILE macho)
-    add_compile_options(-Wno-deprecated)
+    add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
     set(FILE pe)
 
 else()
     set(FILE elf)
+    add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
 endif()
 
 include_directories(include/${FILE})

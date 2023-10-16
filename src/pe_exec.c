@@ -81,13 +81,13 @@ int exec_is_dll(unsigned char *pe)
     IMAGE_DOS_HEADER *dh;
     IMAGE_NT_HEADERS *nh;
 
-    *dh = (IMAGE_DOS_HEADER *)data;
-    *nh = (IMAGE_NT_HEADERS *)(data + dh->e_lfanew);
+    dh = (IMAGE_DOS_HEADER *)pe;
+    nh = (IMAGE_NT_HEADERS *)(pe + dh->e_lfanew);
 
     return (nh->FileHeader.Characteristics & IMAGE_FILE_DLL) != 0;
 }
 
-void exec_walk_peb(bootstrap_t *boostrap)
+void exec_walk_peb(bootstrap_t *bootstrap)
 {
     int iter;
 
@@ -102,7 +102,7 @@ void exec_walk_peb(bootstrap_t *boostrap)
 
     DWORD *names;
     DWORD *ptrs;
-    WORD *ord
+    WORD *ord;
 
     char *sym_name;
     size_t sym_val;
@@ -110,7 +110,7 @@ void exec_walk_peb(bootstrap_t *boostrap)
     peb = jump_to_peb();
 
     ldr = peb->pLdr;
-    entry = (LDR_DATA_TABLE_ENTRY *) ldr->InMemoryOrderModuleList.Flink->Flink;
+    entry = (LDR_DATA_TABLE_ENTRY *)ldr->InMemoryOrderModuleList.Flink->Flink;
 
     while (entry->BaseDllName.pBuffer)
     {
@@ -137,19 +137,19 @@ void exec_walk_peb(bootstrap_t *boostrap)
             switch(djb2_hash(sym_name))
             {
                 case 0x5fbff0fb:
-                    funcs->win_LoadLibrary = (ptr_LoadLibrary)sym_val;
+                    bootstrap->win_LoadLibrary = (ptr_LoadLibrary)sym_val;
                     break;
 
                 case 0xcf31bb1f:
-                    funcs->win_GetProcAddress = (ptr_GetProcAddress)sym_val;
+                    bootstrap->win_GetProcAddress = (ptr_GetProcAddress)sym_val;
                     break;
 
                 case 0x382c0f97:
-                    funcs->win_VirtualAlloc = (ptr_VirtualAlloc)sym_val;
+                    bootstrap->win_VirtualAlloc = (ptr_VirtualAlloc)sym_val;
                     break;
 
                 case 0x844ff18d:
-                    funcs->win_VirtualProtect = (ptr_VirtualProtect)sym_val;
+                    bootstrap->win_VirtualProtect = (ptr_VirtualProtect)sym_val;
                     break;
             }
         }
@@ -187,33 +187,33 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
     DWORD oldFlags;
     DWORD flags;
 
-    dh = (IMAGE_DOS_HEADER *)data;
-    nh = (IMAGE_NT_HEADERS *)(data + dh->e_lfanew);
+    dh = (IMAGE_DOS_HEADER *)pe;
+    nh = (IMAGE_NT_HEADERS *)(pe + dh->e_lfanew);
 
-    uiBaseAddress = (ULONG_PTR)funcs->win_VirtualAlloc((void *)nh->OptionalHeader.ImageBase, nh->OptionalHeader.SizeOfImage, \
+    uiBaseAddress = (ULONG_PTR)bootstrap->win_VirtualAlloc((void *)nh->OptionalHeader.ImageBase, nh->OptionalHeader.SizeOfImage, \
                                                        MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     if (!uiBaseAddress)
     {
-        uiBaseAddress = (ULONG_PTR)funcs->win_VirtualAlloc(0, nh->OptionalHeader.SizeOfImage, \
+        uiBaseAddress = (ULONG_PTR)bootstrap->win_VirtualAlloc(0, nh->OptionalHeader.SizeOfImage, \
                                                            MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     }
 
     uiLibraryAddress = uiBaseAddress - nh->OptionalHeader.ImageBase;
-    memcpy((void *)uiBaseAddress, (void *)data, nh->OptionalHeader.SizeOfHeaders);
+    memcpy((void *)uiBaseAddress, (void *)pe, nh->OptionalHeader.SizeOfHeaders);
     nh_new = (IMAGE_NT_HEADERS *)(uiBaseAddress + dh->e_lfanew);
     nh_new->OptionalHeader.ImageBase = uiBaseAddress;
     sec = (IMAGE_SECTION_HEADER *)((char *)&nh->OptionalHeader + nh->FileHeader.SizeOfOptionalHeader);
 
     for (iter = 0; iter < nh->FileHeader.NumberOfSections; iter++)
     {
-        memcpy((char *)uiBaseAddress + sec[iter].VirtualAddress, (char *)data + sec[iter].PointerToRawData, sec[iter].SizeOfRawData);
+        memcpy((char *)uiBaseAddress + sec[iter].VirtualAddress, (char *)pe + sec[iter].PointerToRawData, sec[iter].SizeOfRawData);
     }
 
     imp_desc = (IMAGE_IMPORT_DESCRIPTOR *)(uiBaseAddress + nh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
 
     for (iter = 0; imp_desc[iter].Name; iter++)
     {
-        handle = funcs->win_LoadLibrary((char *)(uiBaseAddress + imp_desc[iter].Name));
+        handle = bootstrap->win_LoadLibrary((char *)(uiBaseAddress + imp_desc[iter].Name));
 
         if (imp_desc[iter].OriginalFirstThunk)
         {
@@ -230,14 +230,14 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
         {
             if (thunk_data_in[iter_s].u1.Ordinal & IMAGE_ORDINAL_FLAG)
             {
-                addr = (FARPROC *)funcs->win_GetProcAddress(handle, MAKEINTRESOURCE(LOWORD(thunk_data_in[iter_s].u1.Ordinal)));
+                addr = (FARPROC *)bootstrap->win_GetProcAddress(handle, MAKEINTRESOURCE(LOWORD(thunk_data_in[iter_s].u1.Ordinal)));
 
                 return -1;
             }
             else
             {
-                IMAGE_IMPORT_BY_NAME *img_imp = (IMAGE_IMPORT_BY_NAME *)(uiBaseAddress + thunk_data_in[iter_s].u1.AddressOfData);
-                addr = (FARPROC *)funcs->win_GetProcAddress(handle, (LPCSTR)img_imp->Name);
+                img_imp = (IMAGE_IMPORT_BY_NAME *)(uiBaseAddress + thunk_data_in[iter_s].u1.AddressOfData);
+                addr = (FARPROC *)bootstrap->win_GetProcAddress(handle, (LPCSTR)img_imp->Name);
             }
 
             thunk_data_out[iter_s].u1.Function = (size_t)addr;
@@ -299,8 +299,7 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
 
     for (iter = 0; iter < nh->FileHeader.NumberOfSections; iter++)
     {
-        DWORD oldFlags;
-        DWORD flags = 0;
+        flags = 0;
 
         if (sec[iter].Characteristics & IMAGE_SCN_MEM_READ)
         {
@@ -315,7 +314,7 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
             flags |= PAGE_EXECUTE;
         }
 
-        funcs->win_VirtualProtect((char *)uiBaseAddress + sec[iter].VirtualAddress, sec[iter].Misc.VirtualSize, flags, &oldFlags);
+        bootstrap->win_VirtualProtect((char *)uiBaseAddress + sec[iter].VirtualAddress, sec[iter].Misc.VirtualSize, flags, &oldFlags);
     }
 
     *base = uiBaseAddress;

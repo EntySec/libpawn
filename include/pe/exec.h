@@ -157,6 +157,6 @@ typedef struct
 
 void exec_walk_peb(bootstrap_t *bootstrap);
 int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *entry);
-int exec_is_dll(unsigned char *pe)
+int exec_is_dll(unsigned char *pe);
 
 #endif
