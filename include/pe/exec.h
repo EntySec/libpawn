@@ -156,7 +156,7 @@ typedef struct
 } bootstrap_t;
 
 void exec_walk_peb(bootstrap_t *bootstrap);
-void exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *entry);
+int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *entry);
 int exec_is_dll(unsigned char *pe)
 
 #endif

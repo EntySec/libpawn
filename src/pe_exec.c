@@ -158,7 +158,7 @@ void exec_walk_peb(bootstrap_t *boostrap)
     }
 }
 
-void exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *entry)
+int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *entry)
 {
     int iter;
     int iter_s;
@@ -232,7 +232,7 @@ void exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *
             {
                 addr = (FARPROC *)funcs->win_GetProcAddress(handle, MAKEINTRESOURCE(LOWORD(thunk_data_in[iter_s].u1.Ordinal)));
 
-                return;
+                return -1;
             }
             else
             {
@@ -320,4 +320,6 @@ void exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *
 
     *base = uiBaseAddress;
     *entry = uiBaseAddress + nh->OptionalHeader.AddressOfEntryPoint;
+
+    return 0;
 }
