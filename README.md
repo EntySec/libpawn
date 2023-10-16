@@ -49,6 +49,16 @@ Execute main function from Mach-O bundle from buffer and pass `argv` and `env` a
 int pawn_exec_bundle(usigned char *bundle, size_t size, char *argv[], char *env[]);
 ```
 
+### PE
+
+Execute PE from buffer and pass `argv` to it.
+
+```c
+int pawn_exec(unsigned char *pe, char *argv[])
+```
+
+**NOTE:** This method works for `PE` (Portable Executable) files as well as for `DLL` (Dynamic Link Libraries).
+
 ### ELF
 
 Execute ELF from buffer and pass `argv` and `env` to it.
