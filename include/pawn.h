@@ -37,7 +37,7 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, \
 int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
 int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
 
-#elif defined(WIN32)
+#elif defined(_WIN32)
 #include <windows.h>
 
 typedef int (*dll_entry_t)(HANDLE, DWORD, LPVOID);
