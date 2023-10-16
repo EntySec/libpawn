@@ -37,7 +37,7 @@ int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
 int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
 
 #elif defined(WIN32)
-#define KERNEL32_DLL_HASH 0x6ddb9555
+
 
 #else
 #error "Unsupported OS"
