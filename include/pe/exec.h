@@ -25,6 +25,8 @@
 #ifndef _EXEC_H_
 #define _EXEC_H_
 
+#include <windows.h>
+
 #define KERNEL32_DLL_HASH 0x6ddb9555
 
 typedef struct _UNICODE_STR
