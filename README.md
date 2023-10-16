@@ -39,8 +39,13 @@ sudo make install
 
 | Arch | Support |
 |------|---------|
-| **x64** | Yes |
-| **aarch64** | Yes |
+| **x64** | yes |
+| **aarch64** | yes |
+| **armv5l** | no |
+| **i486** | no |
+| **mips** | no |
+| **powerpc** | no |
+| **s390x** | no |
 
 ## API usage
 
