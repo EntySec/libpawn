@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 
-#include <exec.h>
 #include <windows.h>
+#include <exec.h>
+#include <pawn.h>
 
 int pawn_exec(unsigned char *pe, char *argv[])
 {
