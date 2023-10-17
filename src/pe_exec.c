@@ -24,6 +24,8 @@
 
 #include <stdint.h>
 #include <windows.h>
+
+#include <log.h>
 #include <exec.h>
 
 static uint32_t djb2_hash(char *str)
@@ -44,7 +46,7 @@ static uint32_t djb2_hash_hop(char *str)
     uint32_t hash = 5381;
     int chr;
 
-    while ((chr = *str++))
+    while ((chr = *str))
     {
         hash = ((hash << 5) + hash) + chr;
         str += 2;
