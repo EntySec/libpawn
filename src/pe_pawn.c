@@ -23,6 +23,8 @@
  */
 
 #include <windows.h>
+
+#include <log.h>
 #include <exec.h>
 #include <pawn.h>
 
@@ -38,21 +40,28 @@ int pawn_exec(unsigned char *pe, char *argv[])
 
     for (argc = 0; argv[argc]; argc++);
 
+    log_debug("* Attempting to walk PEB\n");
     exec_walk_peb(&bootstrap);
 
     if (exec_load(&bootstrap, pe, &base, &entry) < 0)
     {
+        log_debug("* Failed to load PE\n");
         return -1;
     }
+
+    log_debug("* Loaded PE base pointer (%p)\n", base);
+    log_debug("* Loaded PE entry pointer (%p)\n", entry);
 
     if (exec_is_dll(pe))
     {
         dll_entry = (int (*)(HANDLE, DWORD, LPVOID))(entry);
+        log_debug("* DLL entry pointer located (%p)\n", dll_entry);
         dll_entry((HANDLE)base, DLL_PROCESS_ATTACH, 0);
     }
     else
     {
         pe_entry = (int (*)(int, char **))(entry);
+        log_debug("* PE entry pointer located (%p)\n", pe_entry);
         pe_entry(argc, argv);
     }
 }

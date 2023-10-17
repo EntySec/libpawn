@@ -58,6 +58,8 @@ static void *jump_to_peb(void)
     void *ptr;
 
 #ifdef WIN64
+    log_debug("* Jumping to x64 PEB\n");
+
     __asm__ volatile (
       "movq %%gs:0x60, %0;"
       : "=r" (ptr)
@@ -65,6 +67,8 @@ static void *jump_to_peb(void)
       :
    );
 #else
+    log_debug("* Jumping to x86 PEB\n");
+
     __asm__ volatile (
       "movl %%fs:0x30, %0;"
       : "=r" (ptr)
@@ -134,21 +138,25 @@ void exec_walk_peb(bootstrap_t *bootstrap)
             sym_name = (char *)(base + names[iter]);
             sym_val = base + ptrs[ord[iter]];
 
-            switch(djb2_hash(sym_name))
+            switch (djb2_hash(sym_name))
             {
                 case 0x5fbff0fb:
+                    log_debug("* Located LoadLibrary API call\n");
                     bootstrap->win_LoadLibrary = (ptr_LoadLibrary)sym_val;
                     break;
 
                 case 0xcf31bb1f:
+                    log_debug("* Located GetProcAddress API call\n");
                     bootstrap->win_GetProcAddress = (ptr_GetProcAddress)sym_val;
                     break;
 
                 case 0x382c0f97:
+                    log_debug("* Located VirtualAlloc API call\n");
                     bootstrap->win_VirtualAlloc = (ptr_VirtualAlloc)sym_val;
                     break;
 
                 case 0x844ff18d:
+                    log_debug("* Located VirtualProtect API call\n");
                     bootstrap->win_VirtualProtect = (ptr_VirtualProtect)sym_val;
                     break;
             }
@@ -194,22 +202,32 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
                                                        MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     if (!uiBaseAddress)
     {
+        log_debug("* Failed to allocate region\n");
         uiBaseAddress = (ULONG_PTR)bootstrap->win_VirtualAlloc(0, nh->OptionalHeader.SizeOfImage, \
                                                            MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     }
 
     uiLibraryAddress = uiBaseAddress - nh->OptionalHeader.ImageBase;
+
+    log_debug("* Copying the region over headers\n");
     memcpy((void *)uiBaseAddress, (void *)pe, nh->OptionalHeader.SizeOfHeaders);
+
     nh_new = (IMAGE_NT_HEADERS *)(uiBaseAddress + dh->e_lfanew);
     nh_new->OptionalHeader.ImageBase = uiBaseAddress;
+
     sec = (IMAGE_SECTION_HEADER *)((char *)&nh->OptionalHeader + nh->FileHeader.SizeOfOptionalHeader);
+
+    log_debug("* Loading all found sections\n");
 
     for (iter = 0; iter < nh->FileHeader.NumberOfSections; iter++)
     {
         memcpy((char *)uiBaseAddress + sec[iter].VirtualAddress, (char *)pe + sec[iter].PointerToRawData, sec[iter].SizeOfRawData);
+        log_debug("* Loaded section (%d)\n", iter);
     }
 
     imp_desc = (IMAGE_IMPORT_DESCRIPTOR *)(uiBaseAddress + nh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+
+    log_debug("* Loading import table\n");
 
     for (iter = 0; imp_desc[iter].Name; iter++)
     {
@@ -231,6 +249,7 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
             if (thunk_data_in[iter_s].u1.Ordinal & IMAGE_ORDINAL_FLAG)
             {
                 addr = (FARPROC *)bootstrap->win_GetProcAddress(handle, MAKEINTRESOURCE(LOWORD(thunk_data_in[iter_s].u1.Ordinal)));
+                log_debug("* Found ordinal with no name (fail)\n");
 
                 return -1;
             }
@@ -240,9 +259,12 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
                 addr = (FARPROC *)bootstrap->win_GetProcAddress(handle, (LPCSTR)img_imp->Name);
             }
 
+            log_debug("* Patching resolved address (%p)\n", addr);
             thunk_data_out[iter_s].u1.Function = (size_t)addr;
         }
     }
+
+    log_debug("* Resolving relocation table\n");
 
     if (nh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size)
     {
@@ -258,22 +280,31 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
                 switch (relInfo->type)
                 {
                     case IMAGE_REL_BASED_DIR64:
+                        log_debug("* Found IMAGE_REL_BASED_DIR64 relocation\n");
                         *((ULONG_PTR*)(ptr + relInfo->offset)) += uiLibraryAddress;
+
                         break;   
 
                     case IMAGE_REL_BASED_HIGHLOW:
+                        log_debug("* Found IMAGE_REL_BASED_HIGHLOW relocation\n");
                         *((DWORD*)(ptr + relInfo->offset)) += (DWORD) uiLibraryAddress;
+
                         break;
 
                     case IMAGE_REL_BASED_HIGH:
+                        log_debug("* Found IMAGE_REL_BASED_HIGH relocation\n");
                         *((WORD*)(ptr + relInfo->offset)) += HIWORD(uiLibraryAddress);
+
                         break;
 
                     case IMAGE_REL_BASED_LOW:
+                        log_debug("* Found IMAGE_REL_BASED_LOW relocation\n");
                         *((WORD*)(ptr + relInfo->offset)) += LOWORD(uiLibraryAddress);
+
                         break;
 
                     case IMAGE_REL_BASED_ABSOLUTE:
+                        log_debug("* Found IMAGE_REL_BASED_ABSOLUTE relocation (unknown)\n");
                         break;
 
                     default:
@@ -284,6 +315,8 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
             reloc = (IMAGE_BASE_RELOCATION *)((char *)reloc + reloc->SizeOfBlock);
         }
     }
+
+    log_debug("* Resolving TLS callbacks\n");
 
     if (nh->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
     {
@@ -297,20 +330,25 @@ int exec_load(bootstrap_t *bootstrap, unsigned char *pe, size_t *base, size_t *e
         }
     }
 
+    log_debug("* Setting section permissions\n");
+
     for (iter = 0; iter < nh->FileHeader.NumberOfSections; iter++)
     {
         flags = 0;
 
         if (sec[iter].Characteristics & IMAGE_SCN_MEM_READ)
         {
+            log_debug("* Set section as read-only (%d)\n", iter);
             flags |= PAGE_READONLY;
         }
         if (sec[iter].Characteristics & IMAGE_SCN_MEM_WRITE)
         {
+            log_debug("* Set section as read-write (%d)\n", iter);
             flags |= PAGE_READWRITE;
         }
         else if (sec[iter].Characteristics & IMAGE_SCN_MEM_EXECUTE)
         {
+            log_debug("* Set section as execute (%d)\n", iter);
             flags |= PAGE_EXECUTE;
         }
 
