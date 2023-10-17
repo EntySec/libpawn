@@ -35,6 +35,18 @@ make
 sudo make install
 ```
 
+**NOTE:** If you are building for Linux target, then you should specify `ARCH` flag. (e.g. `-DARCH=aarch64`)
+
+| Arch | Support |
+|------|---------|
+| **x64** | yes |
+| **aarch64** | yes |
+| **armv5l** | no |
+| **i486** | no |
+| **mips** | no |
+| **powerpc** | no |
+| **s390x** | no |
+
 ## API usage
 
 ```c

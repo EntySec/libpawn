@@ -22,43 +22,17 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.0.0)
-project(libpawn VERSION 1.0.0)
+CC = x86_64-w64-mingw32-gcc
+CFLAGS = -ansi -Wall -Wextra -Werror -pedantic-errors
+LDFLAGS = -lpawn
 
-option(DEBUG "Build in debug mode" OFF)
-set(ARCH x64 CACHE STRING "Architecture to build for")
+all: main test
 
-if (DEBUG)
-    add_compile_definitions(DEBUG)
-endif()
+main: main.c
+	$(CC) $(CFLAGS) -o main main.c $(LDFLAGS)
 
-include_directories(include)
+test: test.c
+	$(CC) $(CFLAGS) -o test test.c
 
-if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
-    set(FILE macho)
-    add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
-
-elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
-    set(FILE pe)
-
-else()
-    set(FILE elf)
-    add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
-endif()
-
-include_directories(include/${FILE})
-include_directories(include/${FILE}/${ARCH}/)
-
-file(GLOB PAWN_SOURCES src/${FILE}_*.c)
-add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
-
-set_property(TARGET pawn PROPERTY C_STANDART 89)
-set_property(TARGET pawn PROPERTY POSITION_INDEPENDENT_CODE ON)
-
-set_target_properties(pawn PROPERTIES OUTPUT_NAME pawn)
-
-install(FILES include/pawn.h DESTINATION include)
-install(TARGETS pawn)
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+clean:
+	rm main test

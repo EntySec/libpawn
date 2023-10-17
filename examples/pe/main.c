@@ -22,31 +22,48 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-extern char **environ;
+#include <pawn.h>
 
-#if defined(__APPLE__)
-typedef int (*bundle_entry_t)(int, char **, char **);
+int main(int argc, char *argv[])
+{
+    FILE *file;
+    size_t size;
+    unsigned char *pe;
 
-int pawn_exec_bundle(unsigned char *bundle, size_t size, \
-                     char *argv[], char *env[]);
+    if (argc < 2)
+    {
+        printf("usage: %s <file>\n", argv[0]);
+        return 1;
+    }
 
-#elif defined(__linux__) || defined(__unix__)
-int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
-int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
+    file = fopen(argv[1], "rb");
 
-#elif defined(_WIN32)
-#include <windows.h>
+    if (file == NULL)
+    {
+        return 1;
+    }
 
-typedef int (*dll_entry_t)(HANDLE, DWORD, LPVOID);
-typedef int (*pe_entry_t)(int, char **);
+    fseek(file, 0L, SEEK_END);
+    size = ftell(file);
+    rewind(file);
 
-int pawn_exec(unsigned char *pe, char *argv[]);
+    pe = malloc(size);
 
-#else
-#error "Unsupported OS"
-#endif
+    if (pe == NULL)
+    {
+        return 1;
+    }
 
-#endif
+    fread(pe, sizeof(unsigned char), size, file);
+
+    pawn_exec(pe, argv + 1);
+
+    free(pe);
+    fclose(file);
+
+    return 0;
+}

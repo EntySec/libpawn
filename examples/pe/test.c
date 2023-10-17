@@ -22,31 +22,16 @@
  * SOFTWARE.
  */
 
-#ifndef _PAWN_H_
-#define _PAWN_H_
+#include <stdio.h>
 
-extern char **environ;
+int main(int argc, char *argv[])
+{
+    int iter;
 
-#if defined(__APPLE__)
-typedef int (*bundle_entry_t)(int, char **, char **);
+    for (iter = 0; iter < argc; iter++)
+    {
+        printf("argv[%d]: %s\n", iter, argv[iter]);
+    }
 
-int pawn_exec_bundle(unsigned char *bundle, size_t size, \
-                     char *argv[], char *env[]);
-
-#elif defined(__linux__) || defined(__unix__)
-int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
-int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
-
-#elif defined(_WIN32)
-#include <windows.h>
-
-typedef int (*dll_entry_t)(HANDLE, DWORD, LPVOID);
-typedef int (*pe_entry_t)(int, char **);
-
-int pawn_exec(unsigned char *pe, char *argv[]);
-
-#else
-#error "Unsupported OS"
-#endif
-
-#endif
+    return 0;
+}
