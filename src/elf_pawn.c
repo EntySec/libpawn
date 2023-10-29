@@ -34,8 +34,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <linux/memfd.h>
-
 #include <sys/types.h>
 #include <sys/auxv.h>
 #include <sys/stat.h>
