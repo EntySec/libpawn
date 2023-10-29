@@ -34,6 +34,8 @@ int pawn_exec_bundle(unsigned char *bundle, size_t size, \
                      char *argv[], char *env[]);
 
 #elif defined(__linux__) || defined(__unix__)
+#define MFD_CLOEXEC 0x0001U
+
 int pawn_exec(unsigned char *elf, char *argv[], char *env[]);
 int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[]);
 
