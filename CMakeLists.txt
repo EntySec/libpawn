@@ -22,7 +22,7 @@
 # SOFTWARE.
 #
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.5.0)
 project(libpawn VERSION 1.0.0)
 
 option(DEBUG "Build in debug mode" OFF)
