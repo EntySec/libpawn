@@ -8,10 +8,10 @@
         <img src="https://img.shields.io/badge/language-C-grey.svg">
     </a>
     <a href="https://github.com/EntySec/libpawn/forks">
-        <img src="https://img.shields.io/github/forks/EntySec/libpawn?color=green">
+        <img src="https://img.shields.io/github/forks/EntySec/libpawn?style=flat&color=green">
     </a>
     <a href="https://github.com/EntySec/libpawn/stargazers">
-        <img src="https://img.shields.io/github/stars/EntySec/libpawn?color=yellow">
+        <img src="https://img.shields.io/github/stars/EntySec/libpawn?style=flat&color=yellow">
     </a>
     <a href="https://www.codefactor.io/repository/github/EntySec/libpawn">
         <img src="https://www.codefactor.io/repository/github/EntySec/libpawn/badge">
