@@ -26,7 +26,6 @@ cmake_minimum_required(VERSION 3.5.0)
 project(libpawn VERSION 1.0.0)
 
 option(DEBUG "Build in debug mode" OFF)
-set(ARCH x64 CACHE STRING "Architecture to build for")
 
 if (DEBUG)
     add_compile_definitions(DEBUG)
@@ -47,7 +46,7 @@ else()
 endif()
 
 include_directories(include/${FILE})
-include_directories(include/${FILE}/${ARCH}/)
+include_directories(include/${FILE}/${CMAKE_SYSTEM_PROCESSOR}/)
 
 file(GLOB PAWN_SOURCES src/${FILE}_*.c)
 add_library(pawn STATIC ${PAWN_SOURCES} src/log.c)
