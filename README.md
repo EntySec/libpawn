@@ -23,8 +23,6 @@ make
 sudo make install
 ```
 
-**NOTE:** If you are building for Linux target, then you should specify `ARCH` flag. (e.g. `-DARCH=aarch64`)
-
 | Arch | Support |
 |------|---------|
 | **x64** | yes |
