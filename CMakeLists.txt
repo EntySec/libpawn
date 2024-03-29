@@ -35,7 +35,7 @@ include_directories(include)
 
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     set(FILE macho)
-    add_compile_options(-Wall -Wextra -Werror -pedantic-errors)
+    add_compile_options(-Wall -Wextra -pedantic-errors)
 
 elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
     set(FILE pe)
