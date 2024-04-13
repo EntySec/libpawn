@@ -27,11 +27,15 @@ sudo make install
 |------|---------|
 | **x64** | yes |
 | **aarch64** | yes |
-| **armv5l** | no |
-| **i486** | no |
-| **mips** | no |
-| **powerpc** | no |
-| **s390x** | no |
+| **armv5l** | yes |
+| **i486** | yes |
+| **mips** | yes |
+| **powerpc** | yes |
+| **s390x** | yes |
+| **armv5b** | yes |
+| **mips64** | yes |
+| **mipsel** | yes |
+| **powerpc64le** | yes |
 
 ## API usage
 
