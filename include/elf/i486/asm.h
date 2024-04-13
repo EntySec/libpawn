@@ -27,12 +27,12 @@
 
 #define ASM_JUMP(addr, stack) \
     __asm__ volatile ( \
-        "movq %[stack], %%rsp\n" \
-        "xor %%rdx, %%rdx\n" \
+        "mov %[stack], %%esp\n" \
+        "xor %%edx, %%edx\n" \
         "jmp *%[entry]" \
         : \
         : [stack] "r" (stack), [entry] "r" (addr) \
-        : "rdx", "memory" \
+        : "edx", "memory" \
     )
 
 #endif

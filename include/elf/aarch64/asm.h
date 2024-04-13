@@ -27,8 +27,8 @@
 
 #define ASM_JUMP(addr, stack) \
     __asm__ volatile ( \
-        "mov sp, %[stack];" \
-        "br %[entry];" \
+        "mov sp, %[stack]\n" \
+        "br %[entry]" \
         : \
         : [stack] "r" (stack), [entry] "r" (addr) \
         : "memory" \
