@@ -62,6 +62,7 @@ int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
 
     size_t end;
     size_t done;
+    size_t count;
 
     ElfW(Ehdr) *ehdr;
     ElfW(Phdr) *phdr;
@@ -103,12 +104,12 @@ int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
 
     while (done < end)
     {
-        if (write(fd, elf + done, end - done) < 0)
+        if ((count = write(fd, elf + done, end - done)) < 0)
         {
             return -1;
         }
 
-        done += 1;
+        done += count;
     }
 
     log_debug("* Executing from the file descriptor (%d)\n", fd);
