@@ -64,6 +64,8 @@ int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
     size_t done;
     ssize_t count;
 
+    char path[128];
+
     ElfW(Ehdr) *ehdr;
     ElfW(Phdr) *phdr;
 
@@ -114,6 +116,8 @@ int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
 
     log_debug("* Executing from the file descriptor (%d)\n", fd);
 
-    syscall(SYS_execveat, fd, "", argv, env, 0x1000);
+    sprintf(path, "/proc/self/fd/%d", fd);
+    syscall(SYS_execve, path, argv, env);
+
     return 0;
 }
