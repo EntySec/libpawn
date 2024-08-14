@@ -62,7 +62,7 @@ int pawn_exec_fd(unsigned char *elf, char *argv[], char *env[])
 
     size_t end;
     size_t done;
-    size_t count;
+    ssize_t count;
 
     ElfW(Ehdr) *ehdr;
     ElfW(Phdr) *phdr;
